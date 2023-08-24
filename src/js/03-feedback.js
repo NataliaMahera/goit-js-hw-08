@@ -7,15 +7,34 @@
 // Під час завантаження сторінки перевіряй стан сховища, і якщо там є збережені дані, заповнюй ними поля форми. В іншому випадку поля повинні бути порожніми.
 // Під час сабміту форми очищуй сховище і поля форми, а також виводь у консоль об'єкт з полями email, message та їхніми поточними значеннями.
 // Зроби так, щоб сховище оновлювалось не частіше, ніж раз на 500 мілісекунд. Для цього додай до проекту і використовуй бібліотеку lodash.throttle.
+import throttle from 'lodash.throttle';
+
+const CURRENT_KEY = 'feedback-form-state';
 
 const form = document.querySelector('.feedback-form');
 const input = document.querySelector('.feedback-form input');
 const textarea = document.querySelector('.feedback-form textarea');
 
-form.addEventListener('input', onInput);
+form.addEventListener('input', throttle(onInput, 500));
+form.addEventListener('submit', onSubmit);
+
+dataOutput();
 
 function onInput(evt) {
-  const dataForm = { email, message };
-  console.log(email);
-  localStorage.setItem('feedback-form-state', JSON.stringify(dataForm));
+  dataForm = { email: input.value, message: textarea.value };
+  localStorage.setItem(CURRENT_KEY, JSON.stringify(dataForm));
+}
+
+function onSubmit(evt) {
+  evt.preventDefault();
+  console.log(`email: ${input.value}, message: ${textarea.value}`);
+  evt.currentTarget.reset();
+}
+
+function dataOutput() {
+  const savedData = localStorage.getItem(CURRENT_KEY);
+
+  if (savedData) {
+    console.log(savedData);
+  }
 }
